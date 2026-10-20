@@ -1,4 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+import fs from "fs";
+
+const PORT = process.env.PORT || 3001;
+const BASE_URL = `http://127.0.0.1:${PORT}`;
+
+// Pastikan build produksi ada sebelum server dinyalakan.
+// Pada clean checkout atau CI, lakukan build otomatis jika folder .next belum ada.
+const hasProductionBuild = fs.existsSync(".next");
+const webServerCommand = !hasProductionBuild
+  ? `npm run build && npx next start -p ${PORT}`
+  : `npx next start -p ${PORT}`;
 
 export default defineConfig({
   testDir: "./tests",
@@ -15,7 +26,7 @@ export default defineConfig({
     ["html", { open: "never" }],
   ],
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL: BASE_URL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -27,9 +38,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? "npm run start" : "npm run dev",
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: !process.env.CI,
+    command: webServerCommand,
+    url: BASE_URL,
+    reuseExistingServer: false,
     timeout: 120 * 1000,
   },
 });
