@@ -207,13 +207,13 @@ export function Header({
             </span>
           </button>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile & Tablet Menu Toggle */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
             aria-label="Buka menu navigasi"
-            className="md:hidden p-2 rounded-lg text-[#2C2523] hover:bg-[#EFECE6] transition-colors"
+            className="lg:hidden p-2 rounded-lg text-[#2C2523] hover:bg-[#EFECE6] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               {mobileMenuOpen ? (
@@ -226,7 +226,7 @@ export function Header({
         </div>
       </div>
 
-      {/* Mobile Search Row */}
+      {/* Mobile Search Row (phones only) */}
       <div className="md:hidden border-t border-[#E3DED6] px-4 py-2.5 bg-[#EFECE6]">
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
           <input
@@ -245,9 +245,9 @@ export function Header({
         </form>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile & Tablet Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#E3DED6] bg-[#FAF6F0] px-6 py-4 space-y-3">
+        <div className="lg:hidden border-t border-[#E3DED6] bg-[#FAF6F0] px-6 py-4 space-y-3">
           <div className="text-xs font-medium text-[#998D84]">
             Kategori Produk
           </div>
@@ -272,9 +272,31 @@ export function Header({
             ))}
           </div>
 
-          <div className="pt-3 border-t border-[#E3DED6] flex justify-between text-xs text-[#6B6059]">
-            <a href="#informasi" onClick={() => setMobileMenuOpen(false)}>Informasi Produk</a>
-            <a href="#tentang" onClick={() => setMobileMenuOpen(false)}>Tentang Toko</a>
+          <div className="pt-3 border-t border-[#E3DED6] flex justify-between items-center text-xs text-[#6B6059]">
+            <button
+              type="button"
+              onClick={() => {
+                onScrollToCatalog();
+                setMobileMenuOpen(false);
+              }}
+              className="hover:text-[#2C2523] transition-colors font-medium"
+            >
+              Katalog
+            </button>
+            <a
+              href="#informasi"
+              onClick={() => setMobileMenuOpen(false)}
+              className="hover:text-[#2C2523] transition-colors"
+            >
+              Spesifikasi
+            </a>
+            <a
+              href="#tentang"
+              onClick={() => setMobileMenuOpen(false)}
+              className="hover:text-[#2C2523] transition-colors"
+            >
+              Tentang
+            </a>
           </div>
         </div>
       )}
