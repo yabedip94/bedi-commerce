@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bedi Commerce — Curated Hardware & Minimalist Essentials",
+  title: "Bedi Commerce — Toko Elektronik & Perlengkapan Kerja",
   description:
-    "Explore curated high-fidelity audio, mechanical desk instruments, and premium minimalist lifestyle goods.",
+    "Pilihan audio, keyboard mekanis, dan perlengkapan meja kerja dengan spesifikasi jelas dan desain fungsional.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

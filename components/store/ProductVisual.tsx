@@ -8,14 +8,14 @@ interface ProductVisualProps {
 }
 
 export function ProductVisual({ product }: ProductVisualProps) {
-  const { icon, gradient } = product.visualTheme;
+  const { icon } = product.visualTheme;
 
   const renderIcon = () => {
     switch (icon) {
       case "headphones":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -32,7 +32,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "keyboard":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -49,7 +49,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "watch":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -71,7 +71,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "bag":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -88,7 +88,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "lamp":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -105,7 +105,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "mouse":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -122,7 +122,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "speaker":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -139,7 +139,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "cup":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -156,7 +156,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "jacket":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -173,7 +173,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "laptop":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -190,7 +190,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       case "desk":
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -208,7 +208,7 @@ export function ProductVisual({ product }: ProductVisualProps) {
       default:
         return (
           <svg
-            className="w-20 h-20 text-white/90 drop-shadow-md transition-transform duration-500 group-hover:scale-110"
+            className="w-16 h-16 text-[#6E5845] transition-transform duration-500 group-hover:scale-105"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -231,21 +231,13 @@ export function ProductVisual({ product }: ProductVisualProps) {
   };
 
   return (
-    <div
-      className={`relative w-full h-56 rounded-2xl bg-gradient-to-br ${gradient} bg-zinc-900 flex items-center justify-center overflow-hidden border border-white/5 transition-all duration-300 group-hover:border-white/20`}
-    >
-      {/* Background Decorative Rings */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.08),transparent_60%)]" />
-      <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full border border-white/10 opacity-30 pointer-events-none" />
-      <div className="absolute -top-8 -left-8 w-28 h-28 rounded-full border border-white/10 opacity-20 pointer-events-none" />
-
-      {/* Primary Icon Visual */}
-      <div className="relative z-10 flex flex-col items-center justify-center p-4">
+    <div className="relative w-full h-full flex flex-col items-center justify-center p-4 bg-[#EFECE6] text-[#7D6652]">
+      <div className="text-[#7D6652]">
         {renderIcon()}
-        <span className="mt-3 text-[11px] font-mono tracking-widest uppercase text-white/60 font-semibold px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
-          {product.category}
-        </span>
       </div>
+      <span className="mt-2 text-[10px] text-[#998D84] font-normal">
+        {product.category}
+      </span>
     </div>
   );
 }

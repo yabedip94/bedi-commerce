@@ -1,9 +1,9 @@
 export type ProductCategory =
-  | "Audio & Gear"
-  | "Electronics"
-  | "Workspace"
-  | "Apparel"
-  | "Lifestyle";
+  | "Audio"
+  | "Elektronik"
+  | "Perlengkapan Meja"
+  | "Pakaian & Tas"
+  | "Gaya Hidup";
 
 export interface Product {
   id: string;
@@ -12,12 +12,14 @@ export interface Product {
   description: string;
   price: number;
   originalPrice?: number;
+  discountPercentage?: number;
+  imageUrl: string;
   category: ProductCategory;
   rating: number;
   reviewsCount: number;
   inStock: boolean;
   stockCount: number;
-  badge?: "Bestseller" | "New" | "Sale" | "Limited";
+  badge?: "Terlaris" | "Baru" | "Diskon" | "Terbatas";
   visualTheme: {
     gradient: string;
     icon:
