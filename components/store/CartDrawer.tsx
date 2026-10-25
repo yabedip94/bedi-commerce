@@ -11,6 +11,7 @@ interface CartDrawerProps {
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemoveItem: (productId: string) => void;
   onClearCart: () => void;
+  onCheckout?: () => void;
 }
 
 export function CartDrawer({
@@ -20,6 +21,7 @@ export function CartDrawer({
   onUpdateQuantity,
   onRemoveItem,
   onClearCart,
+  onCheckout,
 }: CartDrawerProps) {
   // Close on Escape key
   useEffect(() => {
@@ -260,16 +262,16 @@ export function CartDrawer({
                 </button>
                 <button
                   type="button"
-                  disabled
-                  title="Fitur checkout disimulasikan untuk kebutuhan purwarupa antarmuka"
-                  className="flex-1 py-2.5 rounded-full bg-[#4B5842] text-[#FAF6F0] text-xs font-medium hover:bg-[#3D4836] transition-colors cursor-not-allowed text-center shadow-2xs"
+                  onClick={onCheckout}
+                  aria-label="Lanjut ke Pembayaran"
+                  className="flex-1 py-2.5 rounded-full bg-[#4B5842] text-[#FAF6F0] text-xs font-medium hover:bg-[#3D4836] transition-colors text-center shadow-2xs"
                 >
                   Lanjut ke Pembayaran
                 </button>
               </div>
 
               <p className="text-[11px] text-center text-[#9C9189]">
-                Simulasi transaksi purwarupa antarmuka • Tidak ada tagihan nyata
+                Pesanan resmi diproses oleh server • Pembayaran disimulasikan
               </p>
             </div>
           )}

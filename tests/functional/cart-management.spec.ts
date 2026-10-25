@@ -402,7 +402,7 @@ test.describe("Storefront Cart Management & Shipping Functional Tests", () => {
     await expect(drawer).toBeHidden();
   });
 
-  test("TC-CART-10: verifikasi tombol checkout purwarupa tetap disabled dan menampilkan keterangan simulasi", async ({
+  test("TC-CART-10: verifikasi tombol checkout aktif dan membuka modal checkout pesanan", async ({
     page,
   }) => {
     // Tambah produk dan buka drawer
@@ -423,21 +423,21 @@ test.describe("Storefront Cart Management & Shipping Functional Tests", () => {
       name: "Lanjut ke Pembayaran",
     });
     await expect(checkoutButton).toBeVisible();
+    await expect(checkoutButton).toBeEnabled();
 
-    // Verifikasi tombol berstatus disabled
-    await expect(checkoutButton).toBeDisabled();
+    // Klik tombol checkout untuk membuka modal checkout
+    await checkoutButton.click();
 
-    // Verifikasi atribut title penjelasan purwarupa
-    await expect(checkoutButton).toHaveAttribute(
-      "title",
-      "Fitur checkout disimulasikan untuk kebutuhan purwarupa antarmuka"
-    );
-
-    // Verifikasi teks disclaimer purwarupa di bawah tombol checkout
+    // Verifikasi modal checkout terbuka
+    const checkoutModal = page.getByRole("dialog", {
+      name: "Modal Checkout Pesanan",
+    });
+    await expect(checkoutModal).toBeVisible();
     await expect(
-      drawer.getByText(
-        "Simulasi transaksi purwarupa antarmuka • Tidak ada tagihan nyata"
-      )
+      checkoutModal.getByRole("heading", { name: "Checkout Pesanan" })
+    ).toBeVisible();
+    await expect(
+      checkoutModal.getByRole("button", { name: "Konfirmasi & Buat Pesanan" })
     ).toBeVisible();
   });
 });

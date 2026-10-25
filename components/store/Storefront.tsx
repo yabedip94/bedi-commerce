@@ -7,6 +7,8 @@ import { Header } from "./Header";
 import { Hero } from "./Hero";
 import { ProductCard } from "./ProductCard";
 import { CartDrawer } from "./CartDrawer";
+import { CheckoutModal } from "./CheckoutModal";
+import { Order } from "@/types/order";
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "rating";
 
@@ -18,6 +20,7 @@ export function Storefront() {
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const catalogRef = useRef<HTMLElement>(null);
@@ -62,6 +65,19 @@ export function Storefront() {
 
   const handleClearCart = () => {
     setCart([]);
+  };
+
+  const handleOpenCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleOrderSuccess = (order: Order) => {
+    handleClearCart();
+    setToastMessage(`Pesanan #${order.id} berhasil dikonfirmasi!`);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4500);
   };
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -535,6 +551,15 @@ export function Storefront() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveFromCart}
         onClearCart={handleClearCart}
+        onCheckout={handleOpenCheckout}
+      />
+
+      {/* Checkout Order Modal */}
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        items={cart}
+        onOrderSuccess={handleOrderSuccess}
       />
 
       {/* Floating Toast Notification */}
