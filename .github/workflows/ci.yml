@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript typecheck
+        run: npx tsc --noEmit
+
+  build-and-test:
+    name: Build & Playwright Tests
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://postgres:password@localhost:5432/bedi_commerce
+      TEST_DATABASE_URL: postgres://postgres:password@localhost:5432/bedi_commerce_test
+      PORT: 3001
+      CI: true
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: bedi_commerce
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create test database
+        run: |
+          PGPASSWORD=password psql -h localhost -U postgres -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'bedi_commerce_test'" | grep -q 1 || PGPASSWORD=password psql -h localhost -U postgres -d postgres -c "CREATE DATABASE bedi_commerce_test;"
+
+      - name: Apply database migrations
+        run: |
+          echo "Applying migrations to primary database (bedi_commerce)..."
+          DATABASE_URL="$DATABASE_URL" npx drizzle-kit migrate
+          echo "Applying migrations to test database (bedi_commerce_test)..."
+          DATABASE_URL="$TEST_DATABASE_URL" npx drizzle-kit migrate
+
+      - name: Install Playwright Chromium browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Next.js production build
+        run: npm run build
+
+      - name: Run Playwright test suite
+        run: npx playwright test
+
+      - name: Upload Playwright diagnostics on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
