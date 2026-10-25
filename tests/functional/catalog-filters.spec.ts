@@ -1,129 +1,117 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "@/tests/fixtures/base-fixture";
 import { SAMPLE_PRODUCTS } from "@/data/products";
 
 test.describe("Storefront Catalog Filter & Sorting Functional Tests", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+  test.beforeEach(async ({ storefrontPage }) => {
+    await storefrontPage.goto();
   });
 
   test("pemilihan filter kategori menampilkan hanya produk yang sesuai", async ({
-    page,
+    storefrontPage,
   }) => {
-    const tablist = page.getByRole("tablist", {
-      name: "Filter kategori produk",
-    });
-
     // 1. Pilih kategori Audio
-    const audioTab = tablist.getByRole("tab", { name: /^Audio/ });
+    const audioTab = storefrontPage.getCategoryTab("Audio");
     await audioTab.click();
     await expect(audioTab).toHaveAttribute("aria-selected", "true");
 
     // Dataset: terdapat tepat 2 produk kategori Audio
-    await expect(
-      page.getByText("Menampilkan 2 dari 12 produk pilihan")
-    ).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 2 dari 12 produk pilihan"
+    );
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(2);
+    await expect(storefrontPage.productCards).toHaveCount(2);
     await expect(
-      page.getByRole("article", { name: "Studio-01 Wireless Headphones" })
+      storefrontPage.getProductCard("Studio-01 Wireless Headphones")
     ).toBeVisible();
     await expect(
-      page.getByRole("article", { name: "SoundBlock Portable Speaker" })
+      storefrontPage.getProductCard("SoundBlock Portable Speaker")
     ).toBeVisible();
 
     // 2. Beralih ke kategori Perlengkapan Meja
-    const deskTab = tablist.getByRole("tab", { name: /^Perlengkapan Meja/ });
+    const deskTab = storefrontPage.getCategoryTab("Perlengkapan Meja");
     await deskTab.click();
     await expect(deskTab).toHaveAttribute("aria-selected", "true");
 
     // Dataset: terdapat 4 produk Perlengkapan Meja
-    await expect(
-      page.getByText("Menampilkan 4 dari 12 produk pilihan")
-    ).toBeVisible();
-    await expect(productCards).toHaveCount(4);
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 4 dari 12 produk pilihan"
+    );
+    await expect(storefrontPage.productCards).toHaveCount(4);
   });
 
   test("reset kategori mengembalikan seluruh 12 produk katalog", async ({
-    page,
+    storefrontPage,
   }) => {
-    const tablist = page.getByRole("tablist", {
-      name: "Filter kategori produk",
-    });
-
     // Pilih kategori Gaya Hidup (2 produk)
-    await tablist.getByRole("tab", { name: /^Gaya Hidup/ }).click();
-    await expect(page.getByRole("article")).toHaveCount(2);
+    const lifestyleTab = storefrontPage.getCategoryTab("Gaya Hidup");
+    await lifestyleTab.click();
+    await expect(storefrontPage.productCards).toHaveCount(2);
 
     // Klik tombol 'Reset Filter' yang muncul
-    const resetFilterButton = page.getByRole("button", {
-      name: "Reset Filter",
-    });
-    await expect(resetFilterButton).toBeVisible();
-    await resetFilterButton.click();
+    await expect(storefrontPage.resetFilterButton).toBeVisible();
+    await storefrontPage.resetFilterButton.click();
 
     // Seluruh 12 produk kembali dan tab 'Semua' aktif
-    await expect(page.getByRole("article")).toHaveCount(12);
-    const allTab = tablist.getByRole("tab", { name: /^Semua/ });
+    await expect(storefrontPage.productCards).toHaveCount(12);
+    const allTab = storefrontPage.getCategoryTab("Semua");
     await expect(allTab).toHaveAttribute("aria-selected", "true");
   });
 
   test("filter stok tersedia mengecualikan produk yang habis stok", async ({
-    page,
+    storefrontPage,
   }) => {
-    const inStockCheckbox = page.getByLabel("Hanya stok tersedia");
-
     // Kondisi awal: 12 produk, termasuk produk habis 'Merino All-Weather Jacket'
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await expect(storefrontPage.productCards).toHaveCount(12);
     await expect(
-      page.getByRole("article", { name: "Merino All-Weather Jacket" })
+      storefrontPage.getProductCard("Merino All-Weather Jacket")
     ).toBeVisible();
 
     // Aktifkan filter stok tersedia
-    await inStockCheckbox.check();
-    await expect(inStockCheckbox).toBeChecked();
+    await storefrontPage.inStockOnlyCheckbox.check();
+    await expect(storefrontPage.inStockOnlyCheckbox).toBeChecked();
 
     // Jumlah produk berkurang menjadi 11
-    await expect(
-      page.getByText("Menampilkan 11 dari 12 produk pilihan")
-    ).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(11);
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 11 dari 12 produk pilihan"
+    );
+    await expect(storefrontPage.productCards).toHaveCount(11);
 
     // Produk habis stok tidak lagi ditampilkan di katalog
     await expect(
-      page.getByRole("article", { name: "Merino All-Weather Jacket" })
+      storefrontPage.getProductCard("Merino All-Weather Jacket")
     ).toHaveCount(0);
 
     // Nonaktifkan kembali filter stok
-    await inStockCheckbox.uncheck();
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await storefrontPage.inStockOnlyCheckbox.uncheck();
+    await expect(storefrontPage.productCards).toHaveCount(12);
     await expect(
-      page.getByRole("article", { name: "Merino All-Weather Jacket" })
+      storefrontPage.getProductCard("Merino All-Weather Jacket")
     ).toBeVisible();
   });
 
   test("pengurutan harga dari rendah ke tinggi menyusun produk secara monoton naik", async ({
-    page,
+    storefrontPage,
   }) => {
-    const sortDropdown = page.getByLabel("Urutkan produk");
-    await sortDropdown.selectOption("price-asc");
+    await storefrontPage.sortSelect.selectOption("price-asc");
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(12);
+    await expect(storefrontPage.productCards).toHaveCount(12);
 
     // Verifikasi produk termurah ($48) dan termahal ($680) pada kedua batas
-    await expect(productCards.first()).toHaveAttribute(
+    await expect(storefrontPage.productCards.first()).toHaveAttribute(
       "aria-label",
       "Ceramic Travel Tumbler 470ml"
     );
-    await expect(productCards.last()).toHaveAttribute(
+    await expect(storefrontPage.productCards.last()).toHaveAttribute(
       "aria-label",
       "Rangefinder Camera 35mm"
     );
 
     // Baca dan parse harga dari seluruh 12 kartu produk menggunakan locator semantik teks harga aktif
     const prices: number[] = [];
-    for (const card of await productCards.all()) {
+    for (const card of await storefrontPage.productCards.all()) {
       const priceText = await card.getByText(/^\$\d+/).first().textContent();
       expect(priceText).toBeTruthy();
       const numericPrice = Number(priceText!.replace("$", ""));
@@ -140,27 +128,25 @@ test.describe("Storefront Catalog Filter & Sorting Functional Tests", () => {
   });
 
   test("pengurutan harga dari tinggi ke rendah menyusun produk secara monoton turun", async ({
-    page,
+    storefrontPage,
   }) => {
-    const sortDropdown = page.getByLabel("Urutkan produk");
-    await sortDropdown.selectOption("price-desc");
+    await storefrontPage.sortSelect.selectOption("price-desc");
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(12);
+    await expect(storefrontPage.productCards).toHaveCount(12);
 
     // Verifikasi produk termahal ($680) dan termurah ($48) pada kedua batas
-    await expect(productCards.first()).toHaveAttribute(
+    await expect(storefrontPage.productCards.first()).toHaveAttribute(
       "aria-label",
       "Rangefinder Camera 35mm"
     );
-    await expect(productCards.last()).toHaveAttribute(
+    await expect(storefrontPage.productCards.last()).toHaveAttribute(
       "aria-label",
       "Ceramic Travel Tumbler 470ml"
     );
 
     // Baca dan parse harga dari seluruh 12 kartu produk
     const prices: number[] = [];
-    for (const card of await productCards.all()) {
+    for (const card of await storefrontPage.productCards.all()) {
       const priceText = await card.getByText(/^\$\d+/).first().textContent();
       expect(priceText).toBeTruthy();
       const numericPrice = Number(priceText!.replace("$", ""));
@@ -177,13 +163,11 @@ test.describe("Storefront Catalog Filter & Sorting Functional Tests", () => {
   });
 
   test("pengurutan rating menempatkan produk dengan kepuasan tertinggi di urutan teratas", async ({
-    page,
+    storefrontPage,
   }) => {
-    const sortDropdown = page.getByLabel("Urutkan produk");
-    await sortDropdown.selectOption("rating");
+    await storefrontPage.sortSelect.selectOption("rating");
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(12);
+    await expect(storefrontPage.productCards).toHaveCount(12);
 
     // Buat lookup rating dari dataset resmi SAMPLE_PRODUCTS
     const productRatingMap = new Map(
@@ -192,7 +176,7 @@ test.describe("Storefront Catalog Filter & Sorting Functional Tests", () => {
 
     // Ambil urutan rating untuk seluruh 12 kartu produk yang ditampilkan
     const displayedRatings: number[] = [];
-    for (const card of await productCards.all()) {
+    for (const card of await storefrontPage.productCards.all()) {
       const productName = await card.getAttribute("aria-label");
       expect(productName).toBeTruthy();
       const rating = productRatingMap.get(productName!);
@@ -213,89 +197,76 @@ test.describe("Storefront Catalog Filter & Sorting Functional Tests", () => {
   });
 
   test("kombinasi filter kategori dan pencarian menyaring katalog secara presisi", async ({
-    page,
+    storefrontPage,
   }) => {
-    const tablist = page.getByRole("tablist", {
-      name: "Filter kategori produk",
-    });
-    const catalogSearchInput = page.getByRole("searchbox", {
-      name: "Cari produk",
-    });
-
     // 1. Pilih kategori 'Perlengkapan Meja' (4 produk)
-    await tablist.getByRole("tab", { name: /^Perlengkapan Meja/ }).click();
-    await expect(page.getByRole("article")).toHaveCount(4);
+    const deskTab = storefrontPage.getCategoryTab("Perlengkapan Meja");
+    await deskTab.click();
+    await expect(storefrontPage.productCards).toHaveCount(4);
 
     // 2. Masukkan kata kunci 'monitor'
     // Walaupun ada 2 monitor di dataset ('Portable OLED Monitor 15.6"' dan 'Walnut Monitor Stand'),
     // hanya 'Walnut Monitor Stand' yang berkategori 'Perlengkapan Meja'.
-    await catalogSearchInput.fill("monitor");
+    await storefrontPage.searchInCatalog("monitor");
 
-    await expect(page.getByRole("article")).toHaveCount(1);
+    await expect(storefrontPage.productCards).toHaveCount(1);
     await expect(
-      page.getByRole("article", { name: "Walnut Monitor Stand" })
+      storefrontPage.getProductCard("Walnut Monitor Stand")
     ).toBeVisible();
 
     // 3. Reset Filter mengembalikan semua kondisi default
-    const resetFilterButton = page.getByRole("button", {
-      name: "Reset Filter",
-    });
-    await resetFilterButton.click();
+    await storefrontPage.resetFilterButton.click();
 
-    await expect(catalogSearchInput).toHaveValue("");
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await expect(storefrontPage.catalogSearchInput).toHaveValue("");
+    await expect(storefrontPage.productCards).toHaveCount(12);
   });
 
   test("pilihan kategori pada header dropdown tersinkronisasi dua arah dengan tab katalog", async ({
     page,
+    storefrontPage,
   }) => {
     // Pastikan ukuran layar desktop agar header category dropdown terlihat
     await page.setViewportSize({ width: 1280, height: 800 });
 
-    const headerCategorySelect = page.locator("#header-category-select");
-    const tablist = page.getByRole("tablist", {
-      name: "Filter kategori produk",
-    });
-
-    const audioTab = tablist.getByRole("tab", { name: /^Audio/ });
-    const deskTab = tablist.getByRole("tab", { name: /^Perlengkapan Meja/ });
-    const allTab = tablist.getByRole("tab", { name: /^Semua/ });
+    const audioTab = storefrontPage.getCategoryTab("Audio");
+    const deskTab = storefrontPage.getCategoryTab("Perlengkapan Meja");
+    const allTab = storefrontPage.getCategoryTab("Semua");
 
     // 1. Pilih kategori 'Audio' melalui header dropdown
-    await expect(headerCategorySelect).toBeVisible();
-    await headerCategorySelect.selectOption("Audio");
+    await expect(storefrontPage.headerCategorySelect).toBeVisible();
+    await storefrontPage.headerCategorySelect.selectOption("Audio");
 
     // Verifikasi tab Audio pada katalog otomatis aktif dan produk terfilter
     await expect(audioTab).toHaveAttribute("aria-selected", "true");
-    await expect(
-      page.getByText("Menampilkan 2 dari 12 produk pilihan")
-    ).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(2);
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 2 dari 12 produk pilihan"
+    );
+    await expect(storefrontPage.productCards).toHaveCount(2);
 
     // 2. Beralih ke kategori 'Perlengkapan Meja' melalui tab katalog
     await deskTab.click();
     await expect(deskTab).toHaveAttribute("aria-selected", "true");
 
     // Verifikasi header dropdown otomatis tersinkronisasi ke 'Perlengkapan Meja'
-    await expect(headerCategorySelect).toHaveValue("Perlengkapan Meja");
-    await expect(
-      page.getByText("Menampilkan 4 dari 12 produk pilihan")
-    ).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(4);
+    await expect(storefrontPage.headerCategorySelect).toHaveValue("Perlengkapan Meja");
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 4 dari 12 produk pilihan"
+    );
+    await expect(storefrontPage.productCards).toHaveCount(4);
 
     // 3. Reset filter melalui tombol 'Reset Filter'
-    const resetFilterButton = page.getByRole("button", {
-      name: "Reset Filter",
-    });
-    await expect(resetFilterButton).toBeVisible();
-    await resetFilterButton.click();
+    await expect(storefrontPage.resetFilterButton).toBeVisible();
+    await storefrontPage.resetFilterButton.click();
 
     // Verifikasi kedua kontrol kembali ke kondisi default 'Semua' dan seluruh 12 produk tampil
-    await expect(headerCategorySelect).toHaveValue("Semua");
+    await expect(storefrontPage.headerCategorySelect).toHaveValue("Semua");
     await expect(allTab).toHaveAttribute("aria-selected", "true");
-    await expect(
-      page.getByText("Menampilkan 12 dari 12 produk pilihan")
-    ).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 12 dari 12 produk pilihan"
+    );
+    await expect(storefrontPage.productCards).toHaveCount(12);
   });
 });

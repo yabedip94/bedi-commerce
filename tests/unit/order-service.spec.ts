@@ -5,16 +5,17 @@ import {
   validateCustomer,
   buildOrder,
 } from "@/lib/orders/order-service";
+import { createCustomerInfo } from "@/tests/fixtures/test-data";
 
-const validBaseCustomer = {
-  fullName: "Budi Santoso",
-  email: "budi.santoso@example.com",
+const validBaseCustomer = createCustomerInfo({
+  phone: undefined,
   shippingAddress: {
     street: "Jl. Sudirman No. 45",
     city: "Jakarta Selatan",
     postalCode: "12190",
+    province: undefined,
   },
-};
+});
 
 test.describe("Order Service Domain & Business Logic Hardening Unit Tests", () => {
   test("1. duplicate product IDs whose combined quantity exceeds stock are rejected with INSUFFICIENT_STOCK", () => {

@@ -9,6 +9,10 @@
     "lint": "eslint",
     "test:e2e": "npm run build && playwright test",
     "test:smoke": "playwright test tests/smoke",
+    "test:unit": "playwright test tests/unit",
+    "test:integration": "playwright test tests/integration",
+    "test:api": "playwright test tests/api",
+    "test:functional": "playwright test tests/functional",
     "test:e2e:report": "playwright show-report",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"

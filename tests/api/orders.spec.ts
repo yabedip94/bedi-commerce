@@ -5,18 +5,9 @@ interface ApiValidationErrorDetail {
   field?: string;
   message?: string;
 }
+import { createCustomerInfo } from "@/tests/fixtures/test-data";
 
-const validBaseCustomer = {
-  fullName: "Budi Santoso",
-  email: "budi.santoso@example.com",
-  phone: "08123456789",
-  shippingAddress: {
-    street: "Jl. Sudirman No. 45",
-    city: "Jakarta Selatan",
-    postalCode: "12190",
-    province: "DKI Jakarta",
-  },
-};
+const validBaseCustomer = createCustomerInfo();
 
 test.describe("Order API Endpoints (/api/orders)", () => {
   test("1. POST /api/orders creates order with subtotal below $150 and applies $15 shipping fee", async ({

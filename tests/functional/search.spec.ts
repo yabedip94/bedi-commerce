@@ -1,147 +1,127 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "@/tests/fixtures/base-fixture";
 
 test.describe("Storefront Search Functional Tests", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+  test.beforeEach(async ({ storefrontPage }) => {
+    await storefrontPage.goto();
   });
 
   test("pencarian dengan nama produk lengkap menampilkan tepat 1 produk", async ({
-    page,
+    storefrontPage,
   }) => {
-    const catalogSearchInput = page.getByRole("searchbox", { name: "Cari produk" });
-    await catalogSearchInput.fill("Studio-01 Wireless Headphones");
+    await storefrontPage.searchInCatalog("Studio-01 Wireless Headphones");
 
     // Ringkasan produk dan jumlah kartu terfilter
-    await expect(
-      page.getByText("Menampilkan 1 dari 12 produk pilihan")
-    ).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 1 dari 12 produk pilihan"
+    );
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(1);
+    await expect(storefrontPage.productCards).toHaveCount(1);
     await expect(
-      page.getByRole("article", { name: "Studio-01 Wireless Headphones" })
+      storefrontPage.getProductCard("Studio-01 Wireless Headphones")
     ).toBeVisible();
   });
 
   test("pencarian dengan kata kunci parsial menampilkan seluruh produk yang relevan", async ({
-    page,
+    storefrontPage,
   }) => {
-    const catalogSearchInput = page.getByRole("searchbox", { name: "Cari produk" });
-    await catalogSearchInput.fill("monitor");
+    await storefrontPage.searchInCatalog("monitor");
 
     // Kata kunci 'monitor' cocok dengan 'Portable OLED Monitor 15.6"' dan 'Walnut Monitor Stand'
-    await expect(
-      page.getByText("Menampilkan 2 dari 12 produk pilihan")
-    ).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 2 dari 12 produk pilihan"
+    );
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(2);
+    await expect(storefrontPage.productCards).toHaveCount(2);
     await expect(
-      page.getByRole("article", { name: 'Portable OLED Monitor 15.6"' })
+      storefrontPage.getProductCard('Portable OLED Monitor 15.6"')
     ).toBeVisible();
     await expect(
-      page.getByRole("article", { name: "Walnut Monitor Stand" })
+      storefrontPage.getProductCard("Walnut Monitor Stand")
     ).toBeVisible();
   });
 
   test("pencarian bersifat case-insensitive (huruf besar/kecil tidak berpengaruh)", async ({
-    page,
+    storefrontPage,
   }) => {
-    const catalogSearchInput = page.getByRole("searchbox", { name: "Cari produk" });
-    await catalogSearchInput.fill("kEyBoArD");
+    await storefrontPage.searchInCatalog("kEyBoArD");
 
-    await expect(
-      page.getByText("Menampilkan 1 dari 12 produk pilihan")
-    ).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 1 dari 12 produk pilihan"
+    );
 
-    const productCards = page.getByRole("article");
-    await expect(productCards).toHaveCount(1);
+    await expect(storefrontPage.productCards).toHaveCount(1);
     await expect(
-      page.getByRole("article", { name: "K-75 Mechanical Keyboard" })
+      storefrontPage.getProductCard("K-75 Mechanical Keyboard")
     ).toBeVisible();
   });
 
   test("pencarian tanpa hasil menampilkan empty state dan dapat direset", async ({
-    page,
+    storefrontPage,
   }) => {
-    const catalogSearchInput = page.getByRole("searchbox", { name: "Cari produk" });
-    await catalogSearchInput.fill("xyznonexistent");
+    await storefrontPage.searchInCatalog("xyznonexistent");
 
     // Tidak ada kartu produk yang tampil
-    await expect(page.getByRole("article")).toHaveCount(0);
+    await expect(storefrontPage.productCards).toHaveCount(0);
 
     // Komponen empty state terlihat
-    await expect(
-      page.getByRole("heading", { level: 3, name: "Produk tidak ditemukan" })
-    ).toBeVisible();
+    await expect(storefrontPage.emptyStateHeading).toBeVisible();
 
     // Reset filter melalui tombol di empty state
-    const resetAllButton = page.getByRole("button", {
-      name: "Reset Semua Filter",
-    });
-    await expect(resetAllButton).toBeVisible();
-    await resetAllButton.click();
+    await expect(storefrontPage.emptyStateResetButton).toBeVisible();
+    await storefrontPage.emptyStateResetButton.click();
 
     // Verifikasi kembali ke kondisi awal (12 produk)
-    await expect(catalogSearchInput).toHaveValue("");
-    await expect(
-      page.getByText("Menampilkan 12 dari 12 produk pilihan")
-    ).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await expect(storefrontPage.catalogSearchInput).toHaveValue("");
+    await expect(storefrontPage.productSummaryText).toBeVisible();
+    await expect(storefrontPage.productSummaryText).toHaveText(
+      "Menampilkan 12 dari 12 produk pilihan"
+    );
+    await expect(storefrontPage.productCards).toHaveCount(12);
   });
 
   test("tombol hapus pencarian pada katalog mengembalikan seluruh produk", async ({
-    page,
+    storefrontPage,
   }) => {
-    const catalogSearchInput = page.getByRole("searchbox", { name: "Cari produk" });
-    await catalogSearchInput.fill("Mouse");
+    await storefrontPage.searchInCatalog("Mouse");
 
-    await expect(page.getByRole("article")).toHaveCount(1);
+    await expect(storefrontPage.productCards).toHaveCount(1);
     await expect(
-      page.getByRole("article", { name: "Precision Wireless Mouse M-03" })
+      storefrontPage.getProductCard("Precision Wireless Mouse M-03")
     ).toBeVisible();
 
     // Klik tombol silang hapus pencarian pada in-page search bar
-    const clearButton = page.getByRole("button", {
-      name: "Hapus pencarian",
-    });
-    await expect(clearButton).toBeVisible();
-    await clearButton.click();
+    await expect(storefrontPage.catalogClearSearchButton).toBeVisible();
+    await storefrontPage.catalogClearSearchButton.click();
 
-    await expect(catalogSearchInput).toHaveValue("");
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await expect(storefrontPage.catalogSearchInput).toHaveValue("");
+    await expect(storefrontPage.productCards).toHaveCount(12);
   });
 
   test("pencarian pada header tersinkronisasi dua arah dengan input katalog", async ({
-    page,
+    storefrontPage,
   }) => {
-    const headerSearchInput = page
-      .locator("header")
-      .getByPlaceholder("Cari audio, keyboard, monitor, lampu meja...");
-    const catalogSearchInput = page.getByRole("searchbox", { name: "Cari produk" });
-
     // Ketik di header search
-    await headerSearchInput.fill("Tumbler");
+    await storefrontPage.searchInHeader("Tumbler");
 
     // Input katalog otomatis memiliki nilai yang sama
-    await expect(catalogSearchInput).toHaveValue("Tumbler");
+    await expect(storefrontPage.catalogSearchInput).toHaveValue("Tumbler");
 
     // Katalog langsung terfilter
-    await expect(page.getByRole("article")).toHaveCount(1);
+    await expect(storefrontPage.productCards).toHaveCount(1);
     await expect(
-      page.getByRole("article", { name: "Ceramic Travel Tumbler 470ml" })
+      storefrontPage.getProductCard("Ceramic Travel Tumbler 470ml")
     ).toBeVisible();
 
     // Hapus melalui tombol clear pada header
-    const clearHeaderButton = page.getByRole("button", {
-      name: "Hapus kata kunci pencarian",
-    });
-    await expect(clearHeaderButton).toBeVisible();
-    await clearHeaderButton.click();
+    await expect(storefrontPage.headerClearSearchButton).toBeVisible();
+    await storefrontPage.headerClearSearchButton.click();
 
     // Kedua input bersih dan 12 produk kembali
-    await expect(headerSearchInput).toHaveValue("");
-    await expect(catalogSearchInput).toHaveValue("");
-    await expect(page.getByRole("article")).toHaveCount(12);
+    await expect(storefrontPage.headerSearchInput).toHaveValue("");
+    await expect(storefrontPage.catalogSearchInput).toHaveValue("");
+    await expect(storefrontPage.productCards).toHaveCount(12);
   });
 });

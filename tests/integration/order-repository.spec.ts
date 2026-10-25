@@ -8,6 +8,7 @@ import {
   DuplicateOrderError,
 } from "@/lib/orders/order-repository";
 import { Order } from "@/types/order";
+import { createCustomerInfo } from "@/tests/fixtures/test-data";
 
 const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ||
@@ -37,7 +38,7 @@ test.describe("PostgreSQL Order Repository Integration Tests (bedi_commerce_test
     return {
       id,
       status: "confirmed",
-      customer: {
+      customer: createCustomerInfo({
         fullName: "Test Customer",
         email: "test.customer@example.com",
         phone: "08123456789",
@@ -47,7 +48,7 @@ test.describe("PostgreSQL Order Repository Integration Tests (bedi_commerce_test
           postalCode: "10110",
           province: "DKI Jakarta",
         },
-      },
+      }),
       subtotal: 468,
       shippingFee: 0,
       total: 468,
