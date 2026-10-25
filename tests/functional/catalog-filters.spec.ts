@@ -245,4 +245,57 @@ test.describe("Storefront Catalog Filter & Sorting Functional Tests", () => {
     await expect(catalogSearchInput).toHaveValue("");
     await expect(page.getByRole("article")).toHaveCount(12);
   });
+
+  test("pilihan kategori pada header dropdown tersinkronisasi dua arah dengan tab katalog", async ({
+    page,
+  }) => {
+    // Pastikan ukuran layar desktop agar header category dropdown terlihat
+    await page.setViewportSize({ width: 1280, height: 800 });
+
+    const headerCategorySelect = page.locator("#header-category-select");
+    const tablist = page.getByRole("tablist", {
+      name: "Filter kategori produk",
+    });
+
+    const audioTab = tablist.getByRole("tab", { name: /^Audio/ });
+    const deskTab = tablist.getByRole("tab", { name: /^Perlengkapan Meja/ });
+    const allTab = tablist.getByRole("tab", { name: /^Semua/ });
+
+    // 1. Pilih kategori 'Audio' melalui header dropdown
+    await expect(headerCategorySelect).toBeVisible();
+    await headerCategorySelect.selectOption("Audio");
+
+    // Verifikasi tab Audio pada katalog otomatis aktif dan produk terfilter
+    await expect(audioTab).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByText("Menampilkan 2 dari 12 produk pilihan")
+    ).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(2);
+
+    // 2. Beralih ke kategori 'Perlengkapan Meja' melalui tab katalog
+    await deskTab.click();
+    await expect(deskTab).toHaveAttribute("aria-selected", "true");
+
+    // Verifikasi header dropdown otomatis tersinkronisasi ke 'Perlengkapan Meja'
+    await expect(headerCategorySelect).toHaveValue("Perlengkapan Meja");
+    await expect(
+      page.getByText("Menampilkan 4 dari 12 produk pilihan")
+    ).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(4);
+
+    // 3. Reset filter melalui tombol 'Reset Filter'
+    const resetFilterButton = page.getByRole("button", {
+      name: "Reset Filter",
+    });
+    await expect(resetFilterButton).toBeVisible();
+    await resetFilterButton.click();
+
+    // Verifikasi kedua kontrol kembali ke kondisi default 'Semua' dan seluruh 12 produk tampil
+    await expect(headerCategorySelect).toHaveValue("Semua");
+    await expect(allTab).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByText("Menampilkan 12 dari 12 produk pilihan")
+    ).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(12);
+  });
 });
