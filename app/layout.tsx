@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Pilihan audio, keyboard mekanis, dan perlengkapan meja kerja dengan spesifikasi jelas dan desain fungsional.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="id"
