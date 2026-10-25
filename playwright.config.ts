@@ -24,6 +24,7 @@ export default defineConfig({
   reporter: [
     ["list"],
     ["html", { open: "never" }],
+    ["allure-playwright", { resultsDir: "allure-results" }],
   ],
   use: {
     baseURL: BASE_URL,
